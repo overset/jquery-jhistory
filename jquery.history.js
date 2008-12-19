@@ -10,11 +10,7 @@
 */
 (function($) {
 
-	/*
-	** pre-initialize the history functionality - once you include this plugin this will be instantiated as a singleton onLoad
-	** IMPORTANT - replace the 'cache.php' with the appropriate cache handler URL string
-	**             this is what the iframe submits its POSTS to and is required for this plugin to work
-	*/
+	// initialize the history functionality - once you include this plugin this will be instantiated as a singleton of sorts
 	$(document).ready( function () { $.history( 'cache.html' ); } );
 
 	// core history plugin functionality - handles singleton instantiation and individual calls
