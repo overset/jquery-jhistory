@@ -1,9 +1,34 @@
 <?
-header("Expires: " . gmdate("D, d M Y H:i:s", time() + 12000000) . " GMT");
-header("Cache-Control: max-age=1200");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s", time() - 120000) . " GMT");
-//header("ETag: 1");
-?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+/*
+// last-modified logic HTTP/1.0 style 304
+if ( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && ((strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'], time()) - time())/60) > 0 ) {
+	header('Not Modified', true, 304);
+	header('Last-Modified: '. $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+	exit(0);
+} else {
+	header('Last-Modified: '. gmdate("D, d M Y H:i:s", time() + 1200) .' GMT');
+}
+*/
+
+// ETag logic HTTP/1.1 style
+if ( isset($_SERVER['HTTP_IF_NONE_MATCH']) && (($_SERVER['HTTP_IF_NONE_MATCH'] - time())/60) < 1200 ) {
+	header('Not Modified', true, 304);
+	header('ETag: '. $_SERVER['HTTP_IF_NONE_MATCH']);
+	exit(0);
+} else {
+	header('ETag: '. time());
+}
+
+print '<pre>'; print_r($_SERVER); print '</pre>';
+
+/*
+	header("Expires: -1");
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+*/
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 	<script language="JavaScript" type="text/javascript" src="jquery.js"></script>
