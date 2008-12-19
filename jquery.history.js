@@ -62,8 +62,11 @@
 			// force the new hash we're about to write into the IE6/7 history stack
 			if ( $.browser.msie )
 				$('.__historyFrame')[0].contentWindow.document.open().close();
-			// write the fragment id to the hash history
-			$('.__historyFrame').contents()[0].location.hash = '#' + $.history.cursor;
+			// write the fragment id to the hash history - webkit required full href reset - ie/ff work with simple hash manipulation
+			if ( $.browser.safari )
+				$('.__historyFrame').contents()[0].location.href = 'cache.html?' + $.history.cursor + '#' + $.history.cursor;
+			else
+				$('.__historyFrame').contents()[0].location.hash = '#' + $.history.cursor;
 
 		}
 			
