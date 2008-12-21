@@ -1,34 +1,27 @@
 /*
-**	history for ajax/javascript history
-**		0.5 simplified the codebase and using static HTML file instead of loading dynamic cache files
-**		0.4 easier to configure cache control iframe POST handler
-**		0.3 history events now setup in queue to ensure all entries reside in the history stack
-**		0.2 no more FORM GET submission, straight location.href instead + hold time for iframe load
-**		0.1 hidden frame + not bookmarkable + stores data for state change + allows reinstating data on forw/back hit
-**	authored by Jim Palmer - released under MIT license
+**  jhistory - jQuery plugin allowing simple non-intrusive browser history
+**    0.5 simplified the codebase and using static HTML file instead of loading dynamic cache files
+**    0.4 easier to configure cache control iframe POST handler
+**    0.3 history events now setup in queue to ensure all entries reside in the history stack
+**    0.2 no more FORM GET submission, straight location.href instead + hold time for iframe load
+**    0.1 hidden frame + not bookmarkable + stores data for state change + allows reinstating data on forw/back hit
+**  author: Jim Palmer; released under MIT license
 **  collage of ideas from Taku Sano, Mikage Sawatari, david bloom and Klaus Hartl
 */
 (function($) {
 
-	// initialize the history functionality - once you include this plugin this will be instantiated as a singleton of sorts
+	// initialize the history functionality - singleton instantiation upon inclusion - set cached flat file for iframe src
 	$(document).ready( function () { $.history( 'cache.html' ); } );
 
-	// core history plugin functionality - handles singleton instantiation and individual calls
+	// core history plugin functionality - handles singleton instantiation and history observer timeout
 	$.history = function ( store ) {
 
-		// (initialize) create the hidden iframe if not on the root window.document.body
+		// create the hidden iframe if not on the root window.document.body
 		if ( $(".__historyFrame").length == 0 ) {
 
-			// set the history cursor to (-1) - this will be populated with current unix timestamp or 0 for the first screen
-			$.history.cursor = $.history.intervalId = 0;
-			// initialize the stack of history stored entries
-			$.history.stack = {};
-			// initialize the stack of loading hold flags
-			$.history._loading = {};
-			// initialize the queue for loading history fragments in sequence
-			$.history._queue = [];
-
-			// append to the root window.document.body without the src - uses class for toggleClass debugging - display:none doesn't work
+			// initialize cursor, interval id, core history stack
+			$.history.cursor = $.history.intervalId = 0, $.history.stack = {};
+			// append to the root window.document.body without the src - uses class for toggleClass debugging - display:none does not work
 			$("body").append('<iframe class="__historyFrame" src="' + store + '" />'); //style="border:0px; width:0px; height:0px; visibility:hidden;" />');
 			// setup interval function to check for changes in "history" via iframe hash and call appropriate callback function to handle it
 			$.history.intervalId = $.history.intervalId || window.setInterval(function () {
@@ -46,13 +39,10 @@
 					}
 				}, 150);
 
-		// store history entry
-		} else { 
+		} else {	// history entry handling
 
 			// set the current unix timestamp for our history
 			$.history.cursor = (new Date()).getTime().toString();
-			// add this cursor fragment id into the queue to be loaded by the checking function interval
-			$.history._queue.push( $.history.cursor );
 			// insert copy into the stack with current cursor 
 			$.history.stack[ $.history.cursor ] = $.extend( true, {}, store );
 			// force the new hash we're about to write into the IE6/7 history stack
