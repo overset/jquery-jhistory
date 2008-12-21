@@ -1,6 +1,11 @@
 <?
 
 /*
+//header('Cache-Control: max-age=1200');
+header('Cache-Control: must-revalidate');
+header('Expires: '. gmdate("D, d M Y H:i:s", time() + 1200) .' GMT');
+*/
+/*
 // last-modified logic HTTP/1.0 style 304
 if ( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && ((strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'], time()) - time())/60) > 0 ) {
 	header('Not Modified', true, 304);
