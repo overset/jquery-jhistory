@@ -22,7 +22,8 @@
 			// initialize cursor, interval id, core history stack
 			$.history.cursor = $.history.intervalId = 0, $.history.stack = {};
 			// append to the root window.document.body without the src - uses class for toggleClass debugging - display:none does not work
-			$("body").append('<iframe class="__historyFrame" src="' + store + '" />'); //style="border:0px; width:0px; height:0px; visibility:hidden;" />');
+			$("body").append('<iframe class="__historyFrame" src="' + store + '" ' + 
+				( $(".__historyFrame").length > 0 ? 'style="border:0px; width:0px; height:0px; visibility:hidden;" ' : '' ) + '/>');
 			// setup interval function to check for changes in "history" via iframe hash and call appropriate callback function to handle it
 			$.history.intervalId = $.history.intervalId || window.setInterval(function () {
 					// fetch current cursor from the iframe document.URL or document.location depending on browser support
