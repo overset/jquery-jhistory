@@ -1,29 +1,31 @@
 /*
-**  jhistory - jQuery plugin allowing simple non-intrusive browser history
-**    0.5 simplified the codebase and using static HTML file instead of loading dynamic cache files
-**    0.4 easier to configure cache control iframe POST handler
-**    0.3 history events now setup in queue to ensure all entries reside in the history stack
-**    0.2 no more FORM GET submission, straight location.href instead + hold time for iframe load
-**    0.1 hidden frame + not bookmarkable + stores data for state change + allows reinstating data on forw/back hit
+**  jhistory 0.6 - jQuery plugin allowing simple non-intrusive browser history
 **  author: Jim Palmer; released under MIT license
-**  collage of ideas from Taku Sano, Mikage Sawatari, david bloom and Klaus Hartl
+**    collage of ideas from Taku Sano, Mikage Sawatari, david bloom and Klaus Hartl
+**  CONFIG -- place in your document.ready function two possible config settings:
+**    $.history._cache = 'cache.html'; // REQUIRED - location to your cache response handler (static flat files prefered)
+**    $.history.stack = {<old object>}; // OPTIONAL - prefill this with previously saved history stack (i.e. saved with session)
 */
 (function($) {
 
-	// initialize the history functionality - singleton instantiation upon inclusion - set cached flat file for iframe src
-	$(document).ready( function () { $.history( 'cache.html' ); } );
-
-	// core history plugin functionality - handles singleton instantiation and history observer timeout
+	// core history plugin functionality - handles singleton instantiation and history observer interval
 	$.history = function ( store ) {
 
-		// create the hidden iframe if not on the root window.document.body
+		// init the stack if not supplied
+		if (!$.history.stack) $.history.stack = {};
+		// avoid new history entries when in the middle of a callback handler
+		if ($.history._locked) return false;
+		// set the current unix timestamp for our history
+		$.history.cursor = (new Date()).getTime().toString();
+		// insert copy into the stack with current cursor 
+		$.history.stack[ $.history.cursor ] = $.extend( true, {}, store );
+
+		// create the hidden iframe if not on the root window.document.body on-demand
 		if ( $(".__historyFrame").length == 0 ) {
 
-			// initialize cursor, interval id, core history stack
-			$.history.cursor = $.history.intervalId = 0, $.history.stack = {};
 			// append to the root window.document.body without the src - uses class for toggleClass debugging - display:none does not work
-			$("body").append('<iframe class="__historyFrame" src="' + store + '" ' + 
-				( $(".__historyFrame").length > 0 ? 'style="border:0px; width:0px; height:0px; visibility:hidden;" ' : '' ) + '/>');
+			$("body").append('<iframe class="__historyFrame" src="' + $.history._cache + '#' + $.history.cursor + 
+				'" style="border:0px; width:0px; height:0px; visibility:hidden;" />');
 			// setup interval function to check for changes in "history" via iframe hash and call appropriate callback function to handle it
 			$.history.intervalId = $.history.intervalId || window.setInterval(function () {
 					// fetch current cursor from the iframe document.URL or document.location depending on browser support
@@ -35,28 +37,28 @@
 						// set the history cursor to the current cursor
 						$.history.cursor = parseFloat(cursor) || 0;
 						// reinstate the current cursor data through the callback
-						if ( typeof($.history.callback) == 'function' )
+						if ( typeof($.history.callback) == 'function' ) {
+							// prevent the callback from re-inserting same history element
+							$.history._locked = true;
 							$.history.callback( $.history.stack[ cursor ], cursor );
+							$.history._locked = false;
+						}
 					}
 				}, 150);
 
-		} else {	// history entry handling
+		} else {
 
-			// set the current unix timestamp for our history
-			$.history.cursor = (new Date()).getTime().toString();
-			// insert copy into the stack with current cursor 
-			$.history.stack[ $.history.cursor ] = $.extend( true, {}, store );
 			// force the new hash we're about to write into the IE6/7 history stack
 			if ( $.browser.msie )
 				$('.__historyFrame')[0].contentWindow.document.open().close();
 			// write the fragment id to the hash history - webkit required full href reset - ie/ff work with simple hash manipulation
 			if ( $.browser.safari )
-				$('.__historyFrame').contents()[0].location.href = 'cache.html?' + $.history.cursor + '#' + $.history.cursor;
+				$('.__historyFrame').contents()[0].location.href = $('.__historyFrame').contents()[0].location.href.split('?')[0] +
+					'?' + $.history.cursor + '#' + $.history.cursor;
 			else
 				$('.__historyFrame').contents()[0].location.hash = '#' + $.history.cursor;
-
-		}
 			
+		}
 	}
 
 })(jQuery);
