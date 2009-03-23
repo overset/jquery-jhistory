@@ -6,8 +6,8 @@ header('Cache-Control: must-revalidate');
 header('Expires: '. gmdate("D, d M Y H:i:s", time() + 1200) .' GMT');
 */
 /*
-// last-modified logic HTTP/1.0 style 304
-if ( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && ((strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'], time()) - time())/60) > 0 ) {
+// last-modified logic HTTP/1.0 style 304 - 
+if ( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && ((strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'], time()) - time()) / 60) > 0 ) {
 	header('Not Modified', true, 304);
 	header('Last-Modified: '. $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	exit(0);
@@ -49,6 +49,8 @@ print '<pre>'; print_r($_SERVER); print '</pre>';
 			$.history( {'counter':counter, 'counter1':counter, 'counter2':counter, 'counter3':counter, 'counter4':counter} );
 			$('#counter').html('{\'counter\':' + counter.toString() + '}');
 		}
+
+		$.history._cache = 'cache.html';
 
 		// function to handle the data coming back from the history upon forw/back hit
 		$.history.callback = function ( reinstate, cursor ) {
