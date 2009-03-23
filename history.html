@@ -25,10 +25,12 @@
 				$('#counter').html('{\'counter\':' + counter.toString() + '}');
 			};
 
-		// initialize the display of the counter value on window.onLoad
-		$('document').ready(function () {
-				$('#counter').html('{\'counter\':' + counter.toString() + '}');
-			});
+		$(function () {
+			// setup the history cache handler
+			$.history._cache = 'cache.html';
+			// initialize the display of the counter value
+			$('#counter').html('{\'counter\':' + counter.toString() + '}');
+		});
 	</script>
 </head>
 <body>
