@@ -1,0 +1,1 @@
+This jQuery plugin offers forward/back button support for web applications need to maintain state without the need of a fragment identifier appearing in the location bar. That means complete control of when the forward/back button entry is added and that the current "state" of the application is stored associated with that history entry for potential reinstatement.
